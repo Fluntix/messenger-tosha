@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Регистрация – Тоша</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="form-container">
+  <h2>📝 Создать аккаунт</h2>
+  <input type="text" id="username" placeholder="Юзернейм (уникальный)">
+  <input type="email" id="email" placeholder="Email" style="margin-top: 16px;">
+  <input type="password" id="password" placeholder="Пароль" style="margin-top: 16px;">
+  <button id="registerBtn" style="margin-top: 28px;">Зарегистрироваться</button>
+  <p style="margin-top: 24px; text-align: center;">
+    Уже есть аккаунт? <a href="login.html" class="link-btn">Войти</a>
+  </p>
+</div>
+<script>
+  document.getElementById('registerBtn').onclick = async () => {
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    if (!username || !email || !password) return alert('Заполните все поля');
+    const snap = await database.ref(`usernames/${username}`).once('value');
+    if (snap.exists()) return alert('Юзернейм уже занят');
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      const userId = cred.user.uid;
+      const backupCode = generateBackupCode();
+      await database.ref(`users/${userId}`).set({
+        username, email, backupCode,
+        name: '', surname: '', about: ''
+      });
+      await database.ref(`usernames/${username}`).set(userId);
+      alert('Регистрация успешна! Теперь заполните профиль.');
+      location.href = 'profile-setup.html';
+    } catch(e) { alert('Ошибка: ' + e.message); }
+  };
+</script>
+</body>
+</html>

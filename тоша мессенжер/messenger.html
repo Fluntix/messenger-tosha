@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Тоша Мессенжер</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+<div id="app">
+  <div id="main-screen" class="main-layout">
+    <!-- Левая панель (список чатов) -->
+    <div class="chats-sidebar" id="chats-sidebar">
+      <div class="sidebar-header">
+        <h3>Тоша</h3>
+        <button id="menu-toggle-btn">☰</button>
+      </div>
+      <div class="search-box">
+        <input type="text" id="search-users" placeholder="🔍 Поиск по юзернейму...">
+        <div id="search-results" class="search-results"></div>
+      </div>
+      <div class="chats-list" id="chats-list"></div>
+      <button id="create-chat-btn" class="create-chat">+ Новый групповой чат</button>
+    </div>
+
+    <!-- Центральная область (Чат) -->
+    <div class="chat-area" id="chat-area">
+      <div class="chat-header">
+        <button id="back-button">← Назад</button>
+        <span id="chat-title"></span>
+        <div class="call-buttons">
+          <button id="start-audio-call">📞 Аудио</button>
+          <button id="start-video-call">📹 Видео</button>
+        </div>
+      </div>
+      <div class="messages-container" id="messages-container"></div>
+      <div class="message-input-area" id="message-input-area">
+        <textarea id="message-input" placeholder="Сообщение..." rows="1"></textarea>
+        <button id="send-message-btn">➤</button>
+      </div>
+    </div>
+
+    <!-- Правая выдвижная панель (профиль и настройки) -->
+    <div id="right-drawer" class="right-drawer">
+      <div class="drawer-header">
+        <span>Меню</span>
+        <button id="close-drawer">✕</button>
+      </div>
+      <div class="drawer-content">
+        <h3>Профиль</h3>
+        <p><strong>Имя:</strong> <span id="drawer-name"></span></p>
+        <p><strong>Юзернейм:</strong> <span id="drawer-username"></span></p>
+        <p><strong>О себе:</strong> <span id="drawer-about"></span></p>
+        <hr style="margin:24px 0; border-color:#20242c;">
+        <h3>Настройки</h3>
+        <div>
+          <p>Резервный код: <strong id="backup-code-display"></strong></p>
+          <button id="regenerate-backup-code" style="margin-top:8px;">Сгенерировать новый код</button>
+        </div>
+        <button id="logout-btn" class="logout-btn">Выйти из аккаунта</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно для просмотра профиля другого пользователя -->
+  <div id="profile-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-username"></h3>
+      <p><strong>Имя:</strong> <span id="modal-fullname"></span></p>
+      <p><strong>О себе:</strong> <span id="modal-about"></span></p>
+      <p><strong>Статус:</strong> <span id="modal-status"></span></p>
+      <div class="modal-buttons">
+        <button id="modal-write">📝 Написать</button>
+        <button id="modal-audio-call">📞 Звонок</button>
+        <button id="modal-video-call">📹 Видео</button>
+      </div>
+      <button id="modal-close" style="margin-top:16px; background:#2c2f38;">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script src="chat-logic.js"></script>
+<script src="call-logic.js"></script>
+</body>
+</html>

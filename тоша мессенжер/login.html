@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Тоша – Вход</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="form-container">
+  <h2>✨ Тоша</h2>
+  <input type="email" id="email" placeholder="Электронная почта">
+  <input type="password" id="password" placeholder="Пароль" style="margin-top: 16px;">
+  <button id="loginBtn" style="margin-top: 28px;">Войти по паролю</button>
+  <hr>
+  <input type="text" id="backupCode" placeholder="Резервный код">
+  <button id="backupLoginBtn">Войти по резервному коду</button>
+  <p style="margin-top: 28px; text-align: center;">
+    Нет аккаунта? <a href="register.html" class="link-btn">Регистрация</a>
+  </p>
+</div>
+<script>
+  document.getElementById('loginBtn').onclick = async () => {
+    const email = document.getElementById('email').value;
+    const pwd = document.getElementById('password').value;
+    if (!email || !pwd) return alert('Заполните все поля');
+    try {
+      await auth.signInWithEmailAndPassword(email, pwd);
+      const userId = auth.currentUser.uid;
+      const snap = await database.ref(`users/${userId}`).once('value');
+      const userData = snap.val();
+      if (!userData || !userData.name) location.href = 'profile-setup.html';
+      else location.href = 'messenger.html';
+    } catch(e) { alert('Ошибка: ' + e.message); }
+  };
+  document.getElementById('backupLoginBtn').onclick = async () => {
+    const code = document.getElementById('backupCode').value.trim();
+    if (!code) return alert('Введите код');
+    const usersSnap = await database.ref('users').orderByChild('backupCode').equalTo(code).once('value');
+    let found = null;
+    usersSnap.forEach(snap => { found = { id: snap.key, ...snap.val() }; });
+    if (!found) return alert('Неверный резервный код');
+    localStorage.setItem('tempUserId', found.id);
+    localStorage.setItem('tempUserData', JSON.stringify(found));
+    if (!found.name) location.href = 'profile-setup.html';
+    else location.href = 'messenger.html';
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Заполните профиль</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="form-container">
+  <h2>👤 Расскажите о себе</h2>
+  <input type="text" id="name" placeholder="Имя">
+  <input type="text" id="surname" placeholder="Фамилия">
+  <textarea id="about" placeholder="О себе" rows="3"></textarea>
+  <button id="saveBtn">Сохранить и продолжить</button>
+</div>
+
+<script>
+  async function getCurrentUserId() {
+    // сначала пробуем через Firebase Auth
+    if (auth.currentUser) return auth.currentUser.uid;
+    // иначе через резервный код (временно)
+    const tempId = localStorage.getItem('tempUserId');
+    if (tempId) return tempId;
+    throw new Error('Пользователь не найден');
+  }
+
+  document.getElementById('saveBtn').onclick = async () => {
+    const name = document.getElementById('name').value.trim();
+    const surname = document.getElementById('surname').value.trim();
+    const about = document.getElementById('about').value.trim();
+    if (!name || !surname) return alert('Имя и фамилия обязательны');
+    try {
+      const userId = await getCurrentUserId();
+      await database.ref(`users/${userId}`).update({ name, surname, about });
+      // Если использовали временный вход (резервный код), чистим localStorage
+      localStorage.removeItem('tempUserId');
+      localStorage.removeItem('tempUserData');
+      window.location.href = 'messenger.html';
+    } catch (e) { alert('Ошибка сохранения: ' + e.message); }
+  };
+</script>
+</body>
+</html>
